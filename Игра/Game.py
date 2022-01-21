@@ -30,8 +30,42 @@ def load_image(name, colorkey=None):
 
 
 def settings_screen():
-    #  здесь будет создаваться и отрисовываться экран настроек
-    pass
+    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+
+    size_title_font = 60
+    title_font = pygame.font.Font(None, size_title_font)
+    text_coord = 50
+
+    size_sections_font = 40
+    sections_font = pygame.font.Font(None, size_sections_font)
+
+    settings_text = ['Настройки', 'Громкость', 'Клавиши', 'Эффекты', 'Музыка']
+
+    for line in settings_text:
+        if line == 'Настройки':
+            string_rendered = title_font.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = title_font.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+        elif line == 'Громкость' or line == 'Клавиши':
+
+        text_coord += intro_rect.height
+        screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
+        screen.blit(string_rendered, intro_rect)
+    pygame.display.flip()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    start_screen()
+                    running = False
+        clock.tick(FPS)
 
 
 def draw_game_world():
@@ -98,7 +132,8 @@ def start_screen():
         elif line == 'Правила игры':
             rules_rect = intro_rect
     pygame.display.flip()
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
