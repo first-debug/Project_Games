@@ -2,16 +2,48 @@ import pygame
 from os import path
 from data.board import Board
 
-
-SIZE = WIDTH, HEIGHT = 800, 600
-FPS = 144
-BUTTON_COLOR = pygame.Color('gray')
+SIZE = WIDTH, HEIGHT = 1000, 600
+FPS = 30
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__(player_sprite)
-        #  self.player_rect =
+    def __init__(self, pos, isJump):
+        super().__init__(all_sprites, player_sprite)
+        self.image = pygame.transform.scale(load_image('Player.png'), (40, 80))
+        self.jump_height = 7
+        self.isJump = isJump
+        self.pos = pos
+
+    def draw(self):
+        screen.blit(self.image, self.pos)
+
+    def jump(self):
+        pygame.draw.rect(screen, '#6b88fe', pygame.Rect(player.pos, (40, 80)))
+        if self.jump_height >= -7:
+            self.pos[1] -= (self.jump_height * abs(self.jump_height)) * 0.5
+            self.jump_height -= 1
+        else:  # This will execute if our jump is finished
+            self.jump_height = 7
+            self.isJump = False
+        screen.blit(player.image, player.pos)
+
+
+class GameWorld(pygame.sprite.Sprite):
+
+    def __init__(self, fon, flight_objects):
+        self.fon = load_image(fon)
+        self.flight_objects = load_image(flight_objects)
+        self.ground = pygame.Rect(0, 400, WIDTH, 200)
+        super(GameWorld, self).__init__(all_sprites, world_sprites)
+
+    def draw_game_world(self):
+        #  ставим фон
+        screen.fill('#6b88fe')
+        screen.blit(self.flight_objects, ((WIDTH // 1.4), (HEIGHT // 5.5)))
+        #  отрисовываем землю
+        pygame.draw.rect(screen, 'brown', self.ground)
+        #  рисуем персонажа
+        player.draw()
 
 
 def load_image(name, colorkey=None):
@@ -66,22 +98,6 @@ def settings_screen():
                     start_screen()
                     running = False
         clock.tick(FPS)
-
-
-def draw_game_world():
-    #  создание сетки для ориентации
-    board = Board(20, 15)
-    #  ставим фон
-    fon = load_image('fon.png')
-    screen.blit(fon, (0, 0))
-    #  отрисовываем землю
-    GRAUND = pygame.Rect(0, 400, WIDTH, 200)
-    pygame.draw.rect(screen, 'brown', GRAUND)
-    #  рисуем персонажа
-    pos_of_player = [320, 320]
-    player_image = pygame.transform.scale(load_image('Player.png'), (40, 80))
-    screen.blit(player_image, pos_of_player)
-    return board, player_image, pos_of_player
 
 
 def rules_screen():
@@ -152,33 +168,46 @@ def start_screen():
                         print('Перешли в правила игры')
         clock.tick(FPS)
 
-
 pygame.init()
+
 screen = pygame.display.set_mode(SIZE)
 
+all_sprites = pygame.sprite.Group()
+world_sprites = pygame.sprite.Group()
+
 player_sprite = pygame.sprite.Group()
+#  создание сетки для ориентации
+board = Board(WIDTH // 40, HEIGHT // 40)
+
+game_world = GameWorld('fon1.png', 'облочко.png')
+player = Player([320, 320], False)
+
 clock = pygame.time.Clock()
+
 start_screen()
-board, player_image, pos_of_player = draw_game_world()
+game_world.draw_game_world()
 
 running = True
 while running:
-    events = pygame.event.get()
-    for event in events:
+    keys = pygame.key.get_pressed()
+    for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-        elif event.type == pygame.KEYDOWN:
+            if keys[pygame.K_d]:
+                pygame.draw.rect(screen, '#6b88fe', pygame.Rect(player.pos, (40, 80)))
+                player.pos[0] += 40
+                screen.blit(player.image, player.pos)
+            if keys[pygame.K_a]:
+                pygame.draw.rect(screen, '#6b88fe', pygame.Rect(player.pos, (40, 80)))
+                player.pos[0] -= 40
+                screen.blit(player.image, player.pos)
 
-            #  if event.key == pygame.K_d:
-                #  pygame.draw.rect(screen, (107, 136, 254), pygame.Rect(pos_of_player, (40, 80)))
-                #  pos_of_player[0] += 40
-                #  screen.blit(player_image, pos_of_player)
-            #  elif event.key == pygame.K_a:
-                #  pygame.draw.rect(screen, '#6b88fe', pygame.Rect(pos_of_player, (40, 80)))
-                #  pos_of_player[0] -= 40
-                #  screen.blit(player_image, pos_of_player)
-            pass
-        #  отрисовываем сетку для ориентации, если нужно
+            if not player.isJump:
+                if keys[pygame.K_SPACE]:
+                    player.isJump = True
+            else:
+                # This is what will happen if we are jumping
+                player.jump()
     board.set_view(0, 0, 40)
     board.render(screen)
     pygame.display.flip()
