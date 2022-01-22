@@ -3,7 +3,7 @@ from os import path
 from data.board import Board
 
 
-SIZE = WIDTH, HEIGHT = 800, 600
+SIZE = WIDTH, HEIGHT = 960, 540
 FPS = 144
 BUTTON_COLOR = pygame.Color('gray')
 
@@ -38,8 +38,7 @@ def draw_game_world():
     #  создание сетки для ориентации
     board = Board(20, 15)
     #  ставим фон
-    fon = load_image('fon.png')
-    screen.blit(fon, (0, 0))
+    screen.fill('#6b88fe')
     #  отрисовываем землю
     GRAUND = pygame.Rect(0, 400, WIDTH, 200)
     pygame.draw.rect(screen, 'brown', GRAUND)
@@ -58,7 +57,7 @@ def rules_screen():
 def start_screen():
     intro_text = ["Mario 0.1", 'Играть', 'Настройки', 'Правила игры']
 
-    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 40)
     size_font_of_title = 60
@@ -133,16 +132,14 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
-
-            #  if event.key == pygame.K_d:
-                #  pygame.draw.rect(screen, (107, 136, 254), pygame.Rect(pos_of_player, (40, 80)))
-                #  pos_of_player[0] += 40
-                #  screen.blit(player_image, pos_of_player)
-            #  elif event.key == pygame.K_a:
-                #  pygame.draw.rect(screen, '#6b88fe', pygame.Rect(pos_of_player, (40, 80)))
-                #  pos_of_player[0] -= 40
-                #  screen.blit(player_image, pos_of_player)
-            pass
+            if event.key == pygame.K_d:
+                pygame.draw.rect(screen, (107, 136, 254), pygame.Rect(pos_of_player, (40, 80)))
+                pos_of_player[0] += 40
+                screen.blit(player_image, pos_of_player)
+            elif event.key == pygame.K_a:
+                pygame.draw.rect(screen, '#6b88fe', pygame.Rect(pos_of_player, (40, 80)))
+                pos_of_player[0] -= 40
+                screen.blit(player_image, pos_of_player)
         #  отрисовываем сетку для ориентации, если нужно
     board.set_view(0, 0, 40)
     board.render(screen)
