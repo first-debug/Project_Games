@@ -3,7 +3,7 @@ from os import path
 from random import choice
 from data.board import Board
 
-SIZE = WIDTH, HEIGHT = 800, 600
+SIZE = WIDTH, HEIGHT = 960, 540
 TILE_SIZE = 40
 FPS = 30
 BUTTON_COLOR = pygame.Color('gray')
@@ -68,7 +68,7 @@ class EnemyItems(pygame.sprite.Sprite):
                 screen.blit(self.image, self.rect.topleft)
             else:  # что делаем при столкновении коробки с игроком
                 screen.blit(self.image, self.rect.topleft)
-                print('GG')
+                end_screen()  # вызываем отрисовку экрана окончания
         else:
             pygame.draw.rect(screen, '#6b88fe', self.rect)
             self.rect.x = WIDTH - self.rect.width
@@ -103,7 +103,8 @@ class GameWorld(pygame.sprite.Sprite):
         #  отрисовываем землю
         pygame.draw.rect(screen, 'brown', self.ground)
         #  рисуем персонажа
-        player.draw()
+        if player is not None:  # проверка для корктной отрисовки персонажа
+            player.draw()
 
     def update(self):
         if screenRect.contains(self.fl_ob_rect):  # проверка на нахождение летающего объекта в кадре
@@ -125,6 +126,78 @@ def settings_screen():
 def rules_screen():
     # здесь будет создаваться и отрисовываться экран правил
     pass
+
+
+def end_screen():
+    # all_sprites.empty() # удалем все спрайты игрового мира(в надобности пока не разобрался)
+    # возварщаем коробки к левому краю экрана
+    game_world.boxes.pos = (WIDTH - TILE_SIZE, choice(range(HEIGHT * 4, HEIGHT * 9)))
+    game_world.boxes.rect.topleft = game_world.boxes.pos
+
+    intro_text = ["Mario 0.1", 'Играть окончена', 'Играть снова', 'Выход в меню']
+
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 40)
+    font_of_end = pygame.font.Font(None, 60)
+    text_coord = (HEIGHT // 3) - 60
+    anim_color = pygame.Color((50, 50, 50))
+
+    for line in intro_text:  # рендерим текст и кнопки
+        # разделим настройки шрифта для заголовка и подсказки
+        if line == 'Играть снова' or line == 'Выход в меню':
+            string_rendered = font.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+        elif line == 'Играть окончена':
+            string_rendered = font_of_end.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font_of_end.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+        else:
+            string_rendered = font.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+        text_coord += intro_rect.height
+        screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
+        screen.blit(string_rendered, intro_rect)
+        if line == 'Играть снова':
+            replay_rect = intro_rect
+        elif line == 'Выход в меню':
+            exit_menu_rect = intro_rect
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    touching_replay = replay_rect.collidepoint(event.pos)
+                    touching_exit_menu_rect = exit_menu_rect.collidepoint(event.pos)
+                    if touching_replay:
+                        game_world.draw_game_world()
+                        return
+                    elif touching_exit_menu_rect:
+                        start_screen()
+                        return
+        clock.tick(FPS)
 
 
 def start_screen():
@@ -149,7 +222,8 @@ def start_screen():
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
-            pygame.draw.rect(screen, anim_color, (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
@@ -167,7 +241,6 @@ def start_screen():
         screen.blit(string_rendered, intro_rect)
         #  находим координаты верхнего левого угла кнопок
         #  в будущем может понадобиться
-        print(intro_rect.topleft, line == 'Настройки')
         if line == 'Настройки':
             settings_rect = intro_rect
         elif line == 'Играть':
@@ -188,6 +261,8 @@ def start_screen():
                         settings_screen()
                         print('Перешли в настройки')
                     elif touching_play:
+                        #  добавил отрисовку игрового мира для корректной работы экрана окончания
+                        game_world.draw_game_world()
                         return
                     elif touching_rules:
                         rules_screen()
