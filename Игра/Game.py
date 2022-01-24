@@ -130,7 +130,7 @@ def rules_screen():
 def start_screen():
     intro_text = ["Mario 0.1", 'Играть', 'Настройки', 'Правила игры']
 
-    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 40)
     size_font_of_title = 60
@@ -149,6 +149,10 @@ def start_screen():
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color, (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
             pygame.draw.rect(screen, anim_color,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
         else:
@@ -163,7 +167,7 @@ def start_screen():
         screen.blit(string_rendered, intro_rect)
         #  находим координаты верхнего левого угла кнопок
         #  в будущем может понадобиться
-        #  print(intro_rect.topleft, line == 'Настройки')
+        print(intro_rect.topleft, line == 'Настройки')
         if line == 'Настройки':
             settings_rect = intro_rect
         elif line == 'Играть':
