@@ -119,12 +119,41 @@ class GameWorld(pygame.sprite.Sprite):
 
 
 def settings_screen():
-    #  здесь будет создаваться и отрисовываться экран настроек
-    pass
+    intro_text = ['Настройки звука', 'Громкость музыки', 'Громкость эффектов']
+
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
+    screen.blit(fon, (0, 0))
+    font_section = pygame.font.Font(None, 40)
+    font_title = pygame.font.Font(None, 60)
+    text_coord = 60
+    anim_color = pygame.Color((50, 50, 50))
+    for line in intro_text:
+        if line == 'Настройки звука':
+            string_rendered = font_title.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font_title.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 80
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+        else:
+            string_rendered = font_section.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font_section.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = 90
+        text_coord += intro_rect.height
+        screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
+        screen.blit(string_rendered, intro_rect)
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        clock.tick(FPS)
 
 
 def rules_screen():
-    # здесь будет создаваться и отрисовываться экран правил
     pass
 
 
@@ -134,7 +163,7 @@ def end_screen():
     game_world.boxes.pos = (WIDTH - TILE_SIZE, choice(range(HEIGHT * 4, HEIGHT * 9)))
     game_world.boxes.rect.topleft = game_world.boxes.pos
 
-    intro_text = ["Mario 0.1", 'Играть окончена', 'Играть снова', 'Выход в меню']
+    intro_text = ["Mario 0.1", 'Игра окончена', 'Играть снова', 'Выход в меню']
 
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -161,7 +190,7 @@ def end_screen():
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
             pygame.draw.rect(screen, anim_color,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
-        elif line == 'Играть окончена':
+        elif line == 'Игра окончена':
             string_rendered = font_of_end.render(line, 1, pygame.Color('white'))
             string_rendered_shadow = font_of_end.render(line, 1, pygame.Color('black'))
             intro_rect = string_rendered.get_rect()
@@ -219,11 +248,6 @@ def start_screen():
             intro_rect = string_rendered.get_rect()
             text_coord += 50
             intro_rect.top = text_coord
-            intro_rect.x = (WIDTH - intro_rect.width) // 2
-            pygame.draw.rect(screen, BUTTON_COLOR,
-                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
-            pygame.draw.rect(screen, anim_color,
-                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
