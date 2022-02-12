@@ -7,6 +7,7 @@ SIZE = WIDTH, HEIGHT = 960, 540
 TILE_SIZE = 40
 FPS = 30
 BUTTON_COLOR = pygame.Color('gray')
+WHITE = pygame.Color('white')
 
 pygame.init()
 screen = pygame.display.set_mode(SIZE)
@@ -226,6 +227,17 @@ def end_screen():
                     elif touching_exit_menu_rect:
                         start_screen()
                         return
+            elif event.type == pygame.MOUSEMOTION:
+                touching_replay = replay_rect.collidepoint(event.pos)
+                touching_exit_menu_rect = exit_menu_rect.collidepoint(event.pos)
+                if touching_replay:
+                    pygame.draw.rect(screen, WHITE, (replay_rect.x - 6, replay_rect.y - 6, replay_rect.width + 12, replay_rect.height + 12), 3)
+                elif touching_exit_menu_rect:
+                    pygame.draw.rect(screen, WHITE, (exit_menu_rect.x - 6, exit_menu_rect.y - 6, exit_menu_rect.width + 12, exit_menu_rect.height + 12), 3)
+                else:
+                    pygame.draw.rect(screen, anim_color, (replay_rect.x - 6, replay_rect.y - 6, replay_rect.width + 12, replay_rect.height + 12), 3)
+                    pygame.draw.rect(screen, anim_color, (exit_menu_rect.x - 6, exit_menu_rect.y - 6, exit_menu_rect.width + 12, exit_menu_rect.height + 12), 3)
+                pygame.display.flip()
         clock.tick(FPS)
 
 
@@ -291,6 +303,21 @@ def start_screen():
                     elif touching_rules:
                         rules_screen()
                         print('Перешли в правила игры')
+            elif event.type == pygame.MOUSEMOTION:
+                touching_settings = settings_rect.collidepoint(event.pos)
+                touching_play = play_rect.collidepoint(event.pos)
+                touching_rules = rules_rect.collidepoint(event.pos)
+                if touching_settings:
+                    pygame.draw.rect(screen, WHITE, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
+                elif touching_play:
+                    pygame.draw.rect(screen, WHITE, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
+                elif touching_rules:
+                    pygame.draw.rect(screen, WHITE, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                else:
+                    pygame.draw.rect(screen, anim_color, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
+                    pygame.draw.rect(screen, anim_color, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
+                    pygame.draw.rect(screen, anim_color, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                pygame.display.flip()
         clock.tick(FPS)
 
 
