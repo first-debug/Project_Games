@@ -7,7 +7,6 @@ SIZE = WIDTH, HEIGHT = 960, 540
 TILE_SIZE = 40
 FPS = 30
 BUTTON_COLOR = pygame.Color('gray')
-WHITE = pygame.Color('white')
 
 pygame.init()
 screen = pygame.display.set_mode(SIZE)
@@ -120,6 +119,53 @@ class GameWorld(pygame.sprite.Sprite):
 
 
 def settings_screen():
+    #  осталось отредактировать отрисовку, расшифорвку кода клавиш и реализовать изменения клавиш для управления
+    intro_text = ['Настройки', f'Влево          {k_left}  ', f'Вправо          {k_right}  ',
+                  f'Прыжок          {k_jump}  ']
+
+    # здесь делаем фон затемнённым
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
+    fon.set_alpha(90)
+    screen.fill('black')
+    screen.blit(fon, (0, 0))
+
+    font = pygame.font.Font(None, 40)
+    size_font_of_title = 60
+    font_of_title = pygame.font.Font(None, size_font_of_title)
+    text_coord = (HEIGHT // 3) - size_font_of_title
+    anim_color = pygame.Color((50, 50, 50))
+
+    for line in intro_text:
+        # разделим настройки шрифта для заголовка и подсказки
+        if line == 'Настройки':
+            string_rendered = font_of_title.render(line, True, pygame.Color('white'))
+            string_rendered_shadow = font_of_title.render(line, True, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 10
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+        else:
+            string_rendered = font.render(line, True, pygame.Color('white'))
+            string_rendered_shadow = font.render(line, True, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 3
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, 375, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, 375, intro_rect.height + 12), 3)
+        text_coord += intro_rect.height
+        screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
+        screen.blit(string_rendered, intro_rect)
+        if line == 'Настройки':
+            settings_rect = intro_rect
+        elif line == 'Играть':
+            play_rect = intro_rect
+        elif line == 'Правила игры':
+            rules_rect = intro_rect
+        elif line == 'Выход':
+            exit_rect = intro_rect
     intro_text = ['Настройки звука', 'Громкость музыки', 'Громкость эффектов']
 
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
@@ -151,10 +197,17 @@ def settings_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    touching_settings = settings_rect.collidepoint(event.pos)
+                    if touching_settings:
+                        settings_screen()
+                        print('Перешли в настройки')
         clock.tick(FPS)
 
 
 def rules_screen():
+    # здесь будет создаваться и отрисовываться экран правил
     pass
 
 
@@ -164,7 +217,7 @@ def end_screen():
     game_world.boxes.pos = (WIDTH - TILE_SIZE, choice(range(HEIGHT * 4, HEIGHT * 9)))
     game_world.boxes.rect.topleft = game_world.boxes.pos
 
-    intro_text = ["Mario 0.1", 'Игра окончена', 'Играть снова', 'Выход в меню']
+    intro_text = ["Mario 0.1", 'Играть окончена', 'Играть снова', 'Выход в меню']
 
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
@@ -191,6 +244,9 @@ def end_screen():
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
             pygame.draw.rect(screen, anim_color,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+        elif line == 'Играть окончена':
+            string_rendered = font_of_end.render(line, True, pygame.Color('white'))
+            string_rendered_shadow = font_of_end.render(line, True, pygame.Color('black'))
         elif line == 'Игра окончена':
             string_rendered = font_of_end.render(line, 1, pygame.Color('white'))
             string_rendered_shadow = font_of_end.render(line, 1, pygame.Color('black'))
@@ -227,17 +283,6 @@ def end_screen():
                     elif touching_exit_menu_rect:
                         start_screen()
                         return
-            elif event.type == pygame.MOUSEMOTION:
-                touching_replay = replay_rect.collidepoint(event.pos)
-                touching_exit_menu_rect = exit_menu_rect.collidepoint(event.pos)
-                if touching_replay:
-                    pygame.draw.rect(screen, WHITE, (replay_rect.x - 6, replay_rect.y - 6, replay_rect.width + 12, replay_rect.height + 12), 3)
-                elif touching_exit_menu_rect:
-                    pygame.draw.rect(screen, WHITE, (exit_menu_rect.x - 6, exit_menu_rect.y - 6, exit_menu_rect.width + 12, exit_menu_rect.height + 12), 3)
-                else:
-                    pygame.draw.rect(screen, anim_color, (replay_rect.x - 6, replay_rect.y - 6, replay_rect.width + 12, replay_rect.height + 12), 3)
-                    pygame.draw.rect(screen, anim_color, (exit_menu_rect.x - 6, exit_menu_rect.y - 6, exit_menu_rect.width + 12, exit_menu_rect.height + 12), 3)
-                pygame.display.flip()
         clock.tick(FPS)
 
 
@@ -260,6 +305,11 @@ def start_screen():
             intro_rect = string_rendered.get_rect()
             text_coord += 50
             intro_rect.top = text_coord
+            intro_rect.x = (WIDTH - intro_rect.width) // 2
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
@@ -303,20 +353,26 @@ def start_screen():
                     elif touching_rules:
                         rules_screen()
                         print('Перешли в правила игры')
+                    elif touching_exit:
+                        pygame.quit()
             elif event.type == pygame.MOUSEMOTION:
                 touching_settings = settings_rect.collidepoint(event.pos)
                 touching_play = play_rect.collidepoint(event.pos)
                 touching_rules = rules_rect.collidepoint(event.pos)
+                touching_exit = exit_rect.collidepoint(event.pos)
                 if touching_settings:
                     pygame.draw.rect(screen, WHITE, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
                 elif touching_play:
                     pygame.draw.rect(screen, WHITE, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
                 elif touching_rules:
                     pygame.draw.rect(screen, WHITE, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                elif touching_exit:
+                    pygame.draw.rect(screen, WHITE, (exit_rect.x - 6, exit_rect.y - 6, exit_rect.width + 12, exit_rect.height + 12), 3)
                 else:
                     pygame.draw.rect(screen, anim_color, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
                     pygame.draw.rect(screen, anim_color, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
                     pygame.draw.rect(screen, anim_color, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                    pygame.draw.rect(screen, anim_color, (exit_rect.x - 6, exit_rect.y - 6, exit_rect.width + 12, exit_rect.height + 12), 3)
                 pygame.display.flip()
         clock.tick(FPS)
 
