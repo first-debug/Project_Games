@@ -120,12 +120,13 @@ class GameWorld(pygame.sprite.Sprite):
 
 
 def settings_screen():
-    intro_text = ['Настройки звука', 'Громкость музыки', 'Громкость эффектов']
+    intro_text = ['Настройки звука', 'Громкость музыки', 'Громкость эффектов', 'Назад']
 
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font_section = pygame.font.Font(None, 40)
     font_title = pygame.font.Font(None, 60)
+    font_backmenu = pygame.font.Font(None, 50)
     text_coord = 60
     anim_color = pygame.Color((50, 50, 50))
     for line in intro_text:
@@ -136,6 +137,17 @@ def settings_screen():
             text_coord += 80
             intro_rect.top = text_coord
             intro_rect.x = (WIDTH - intro_rect.width) // 2
+        elif line == 'Назад':
+            string_rendered = font_backmenu.render(line, 1, pygame.Color('white'))
+            string_rendered_shadow = font_backmenu.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            intro_rect.x = 100
+            intro_rect.y = HEIGHT - 100
+            pygame.draw.rect(screen, BUTTON_COLOR,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
+            pygame.draw.rect(screen, anim_color,
+                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
+            backmenu_rect = intro_rect
         else:
             string_rendered = font_section.render(line, 1, pygame.Color('white'))
             string_rendered_shadow = font_section.render(line, 1, pygame.Color('black'))
@@ -143,6 +155,7 @@ def settings_screen():
             text_coord += 50
             intro_rect.top = text_coord
             intro_rect.x = 90
+            pygame.draw.line(screen, WHITE, (intro_rect.x + intro_rect.w + 30, intro_rect.y + intro_rect.h // 2), (intro_rect.x + intro_rect.w + 330, intro_rect.y + intro_rect.h // 2))
         text_coord += intro_rect.height
         screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
         screen.blit(string_rendered, intro_rect)
@@ -151,6 +164,18 @@ def settings_screen():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    touching_backmenu = backmenu_rect.collidepoint(event.pos)
+                    if touching_backmenu:
+                        start_screen()
+                        return
+            elif event.type == pygame.MOUSEMOTION:
+                if backmenu_rect.collidepoint(event.pos):
+                    pygame.draw.rect(screen, WHITE, (backmenu_rect.x - 6, backmenu_rect.y - 6, backmenu_rect.width + 12, backmenu_rect.height + 12), 3)
+                else:
+                    pygame.draw.rect(screen, anim_color, (backmenu_rect.x - 6, backmenu_rect.y - 6, backmenu_rect.width + 12, backmenu_rect.height + 12), 3)
+                pygame.display.flip()
         clock.tick(FPS)
 
 
@@ -181,11 +206,6 @@ def end_screen():
             intro_rect = string_rendered.get_rect()
             text_coord += 50
             intro_rect.top = text_coord
-            intro_rect.x = (WIDTH - intro_rect.width) // 2
-            pygame.draw.rect(screen, BUTTON_COLOR,
-                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
-            pygame.draw.rect(screen, anim_color,
-                             (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12), 3)
             intro_rect.x = (WIDTH - intro_rect.width) // 2
             pygame.draw.rect(screen, BUTTON_COLOR,
                              (intro_rect.x - 6, intro_rect.y - 6, intro_rect.width + 12, intro_rect.height + 12))
