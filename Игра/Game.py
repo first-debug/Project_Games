@@ -1,3 +1,5 @@
+import time
+
 import pygame
 import csv
 from os import path
@@ -11,6 +13,7 @@ BUTTON_COLOR = pygame.Color('gray')
 WHITE = pygame.Color('white')
 
 pygame.init()
+pygame.mixer.music.load('data/main_menu_theme.mp3')
 screen = pygame.display.set_mode(SIZE)
 
 
@@ -51,6 +54,7 @@ class Player(pygame.sprite.Sprite):
         screen.blit(self.image, self.pos)
 
     def jump(self):
+        self.image = pygame.transform.scale(load_image('Player_jumps.png'), (TILE_SIZE, TILE_SIZE * 2))
         pygame.draw.rect(screen, '#6b88fe', self.rect)
         if self.jump_height >= -7:
             self.rect.top -= (self.jump_height * abs(self.jump_height))
@@ -59,7 +63,9 @@ class Player(pygame.sprite.Sprite):
         else:
             self.jump_height = 7
             self.isJump = False
+            self.image = pygame.transform.scale(load_image('Player.png'), (TILE_SIZE, TILE_SIZE * 2))
         screen.blit(player.image, player.pos)
+
 
 
 class EnemyItems(pygame.sprite.Sprite):
@@ -91,6 +97,8 @@ class GameWorld(pygame.sprite.Sprite):
     def __init__(self, fon, flight_objects):
         super(GameWorld, self).__init__(all_sprites, world_sprites)
         self.fon = load_image(fon)
+        pygame.mixer.music.load("data/main_menu_theme.mp3")
+        pygame.mixer.music.play()
 
         #  создаём коробку
         box_image = load_image("box.png")
@@ -108,6 +116,8 @@ class GameWorld(pygame.sprite.Sprite):
 
     def draw_game_world(self):
         #  ставим фон
+        pygame.mixer.music.stop()
+        pygame.mixer.music.load('data/new_sound.mp3')
         screen.fill('#6b88fe')
         screen.blit(self.flight_objects, (self.flight_objects_x, self.flight_objects_y))
         #  отрисовываем землю
@@ -129,12 +139,12 @@ class GameWorld(pygame.sprite.Sprite):
 
 
 def settings_screen():
-    #  осталось отредактировать отрисовку, расшифорвку кода клавиш и реализовать изменения клавишь для управления
-    intro_text = ['Настройки', f'Влево          {k_left}  ', f'Впарво          {k_right}  ',
+    #  осталось отредактировать отрисовку, расшифорвку кода клавиш и реализовать изменения клавиш для управления
+    intro_text = ['Настройки', f'Влево          {k_left}  ', f'Вправо          {k_right}  ',
                   f'Прыжок          {k_jump}  ']
 
     # здесь делаем фон затемнённым
-    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     fon.set_alpha(90)
     screen.fill('black')
     screen.blit(fon, (0, 0))
@@ -174,6 +184,8 @@ def settings_screen():
             play_rect = intro_rect
         elif line == 'Правила игры':
             rules_rect = intro_rect
+        elif line == 'Выход':
+            exit_rect = intro_rect
     intro_text = ['Настройки звука', 'Громкость музыки', 'Громкость эффектов']
 
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
@@ -219,6 +231,8 @@ def rules_screen():
 
 
 def end_screen():
+    pygame.mixer.music.load('data/main_menu_theme.mp3')
+    pygame.mixer.music.play(-1)
     # all_sprites.empty() # удалим все спрайты игрового мира(в надобности пока не разобрался)
     # возварщаем коробки к левому краю экрана
     game_world.boxes.pos = (WIDTH - TILE_SIZE, choice(range(HEIGHT * 4, HEIGHT * 9)))
@@ -226,7 +240,7 @@ def end_screen():
 
     intro_text = ["Mario 0.1", 'Игра окончена', 'Играть снова', 'Выход в меню']
 
-    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 40)
     font_of_end = pygame.font.Font(None, 60)
@@ -305,9 +319,9 @@ def end_screen():
 
 
 def start_screen():
-    intro_text = ["Mario 0.1", 'Играть', 'Настройки', 'Правила игры']
+    intro_text = ["Mario 0.1", 'Играть', 'Настройки', 'Правила игры', 'Выход']
 
-    fon = pygame.transform.scale(load_image('fon_start_screen.jpg'), (WIDTH, HEIGHT))
+    fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     screen.blit(fon, (0, 0))
     font = pygame.font.Font(None, 40)
     size_font_of_title = 60
@@ -346,6 +360,8 @@ def start_screen():
             play_rect = intro_rect
         elif line == 'Правила игры':
             rules_rect = intro_rect
+        elif line == 'Выход':
+            exit_rect = intro_rect
     pygame.display.flip()
     while True:
         for event in pygame.event.get():
@@ -356,6 +372,7 @@ def start_screen():
                     touching_settings = settings_rect.collidepoint(event.pos)
                     touching_play = play_rect.collidepoint(event.pos)
                     touching_rules = rules_rect.collidepoint(event.pos)
+                    touching_exit = exit_rect.collidepoint(event.pos)
                     if touching_settings:
                         settings_screen()
                         print('Перешли в настройки')
@@ -366,20 +383,26 @@ def start_screen():
                     elif touching_rules:
                         rules_screen()
                         print('Перешли в правила игры')
+                    elif touching_exit:
+                        pygame.quit()
             elif event.type == pygame.MOUSEMOTION:
                 touching_settings = settings_rect.collidepoint(event.pos)
                 touching_play = play_rect.collidepoint(event.pos)
                 touching_rules = rules_rect.collidepoint(event.pos)
+                touching_exit = exit_rect.collidepoint(event.pos)
                 if touching_settings:
                     pygame.draw.rect(screen, WHITE, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
                 elif touching_play:
                     pygame.draw.rect(screen, WHITE, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
                 elif touching_rules:
                     pygame.draw.rect(screen, WHITE, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                elif touching_exit:
+                    pygame.draw.rect(screen, WHITE, (exit_rect.x - 6, exit_rect.y - 6, exit_rect.width + 12, exit_rect.height + 12), 3)
                 else:
                     pygame.draw.rect(screen, anim_color, (settings_rect.x - 6, settings_rect.y - 6, settings_rect.width + 12, settings_rect.height + 12), 3)
                     pygame.draw.rect(screen, anim_color, (play_rect.x - 6, play_rect.y - 6, play_rect.width + 12, play_rect.height + 12), 3)
                     pygame.draw.rect(screen, anim_color, (rules_rect.x - 6, rules_rect.y - 6, rules_rect.width + 12, rules_rect.height + 12), 3)
+                    pygame.draw.rect(screen, anim_color, (exit_rect.x - 6, exit_rect.y - 6, exit_rect.width + 12, exit_rect.height + 12), 3)
                 pygame.display.flip()
         clock.tick(FPS)
 
@@ -428,6 +451,7 @@ while running:
     if not player.isJump:
         if keys[int(k_jump)]:
             player.isJump = True
+            pygame.mixer.music.play()
     else:
         player.jump()
 
