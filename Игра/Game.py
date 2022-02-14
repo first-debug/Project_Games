@@ -67,7 +67,6 @@ class Player(pygame.sprite.Sprite):
         screen.blit(player.image, player.pos)
 
 
-
 class EnemyItems(pygame.sprite.Sprite):
 
     def __init__(self, image, pos):
@@ -142,7 +141,6 @@ def settings_screen():
     #  осталось отредактировать отрисовку, расшифорвку кода клавиш и реализовать изменения клавиш для управления
     intro_text = ['Настройки', f'Влево          {k_left}  ', f'Вправо          {k_right}  ',
                   f'Прыжок          {k_jump}  ']
-
     # здесь делаем фон затемнённым
     fon = pygame.transform.scale(load_image('fon_start_screen_proba.jpg'), (WIDTH, HEIGHT))
     fon.set_alpha(90)
@@ -198,6 +196,10 @@ def settings_screen():
         if line == 'Настройки звука':
             string_rendered = font_title.render(line, 1, pygame.Color('white'))
             string_rendered_shadow = font_title.render(line, 1, pygame.Color('black'))
+            pygame.draw.rect(screen, BUTTON_COLOR, (370, 235, 25, 25))
+            pygame.draw.rect(screen, BUTTON_COLOR, (400, 235, 25, 25))
+            pygame.draw.rect(screen, BUTTON_COLOR, (400, 312, 25, 25))
+            pygame.draw.rect(screen, BUTTON_COLOR, (430, 312, 25, 25))
             intro_rect = string_rendered.get_rect()
             text_coord += 80
             intro_rect.top = text_coord
@@ -213,11 +215,29 @@ def settings_screen():
         screen.blit(string_rendered_shadow, intro_rect.move(1, 1))
         screen.blit(string_rendered, intro_rect)
     pygame.display.flip()
+    volume = 1
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    start_screen()
+                    return
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                if pygame.mouse.get_pos() >= (370, 235) and pygame.mouse.get_pos() <= (395, 260):
+                    volume -= 0.1
+                    pygame.mixer.music.set_volume(volume)
+                    print('Звук уменьшился на 1')
+                elif pygame.mouse.get_pos() >= (400, 235) and pygame.mouse.get_pos() <= (425, 260):
+                    volume += 0.1
+                    print('Звук прибавился на 1')
+                    pygame.mixer.music.set_volume(volume)
+                # Эти кнопки готовятся к созданию
+                # elif pygame.mouse.get_pos() >= (400, 312):
+                #     pygame.mixer.music.set_volume(volume)
+                # elif pygame.mouse.get_pos() >= (430, 312):
+                #     pygame.mixer.music.set_volume(volume)
                 if event.button == 1:
                     touching_settings = settings_rect.collidepoint(event.pos)
                     if touching_settings:
@@ -383,6 +403,7 @@ def start_screen():
                     elif touching_rules:
                         rules_screen()
                         print('Перешли в правила игры')
+                        print('Я вас умоляю, какие правила? Это тирекс на минималках!')
                     elif touching_exit:
                         pygame.quit()
             elif event.type == pygame.MOUSEMOTION:
