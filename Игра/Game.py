@@ -16,6 +16,11 @@ pygame.mixer.music.load('data/main_menu_theme.mp3')
 screen = pygame.display.set_mode(SIZE)
 
 
+def quit():
+    pygame.quit()
+    exit(0)
+
+
 def load_image(name, colorkey=None):
     fullname = path.join('data', name)
     if not path.isfile(fullname):
@@ -218,7 +223,7 @@ def settings_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     start_screen()
@@ -312,7 +317,7 @@ def end_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     touching_replay = replay_rect.collidepoint(event.pos)
@@ -393,7 +398,7 @@ def start_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     touching_settings = settings_rect.collidepoint(event.pos)
@@ -412,7 +417,7 @@ def start_screen():
                         print('Перешли в правила игры')
                         print('Я вас умоляю, какие правила? Это тирекс на минималках!')
                     elif touching_exit:
-                        pygame.quit()
+                        quit()
             elif event.type == pygame.MOUSEMOTION:
                 touching_settings = settings_rect.collidepoint(event.pos)
                 touching_play = play_rect.collidepoint(event.pos)
@@ -489,4 +494,4 @@ while running:
     # board.render(screen)
     pygame.display.flip()
     clock.tick(FPS)
-pygame.quit()
+quit()
