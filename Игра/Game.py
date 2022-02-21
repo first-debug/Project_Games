@@ -476,9 +476,6 @@ while running:
     else:
         player.jump()
 
-    #  отрисовываем сетку для ориентации, если нужно
-    # board.set_view(0, 0, 40)
-    # board.render(screen)
     pygame.display.flip()
     clock.tick(FPS)
 pygame.quit()
