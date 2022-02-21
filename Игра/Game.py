@@ -1,6 +1,5 @@
-import time
-
 import pygame
+import time
 import csv
 from os import path
 from random import choice
@@ -8,7 +7,7 @@ from data.board import Board
 
 SIZE = WIDTH, HEIGHT = 960, 540
 TILE_SIZE = 40
-FPS = 30
+FPS = 24
 BUTTON_COLOR = pygame.Color('gray')
 WHITE = pygame.Color('white')
 
@@ -128,7 +127,7 @@ class GameWorld(pygame.sprite.Sprite):
     def update(self):
         if screenRect.contains(self.fl_ob_rect):  # проверка на нахождение летающего объекта в кадре
             pygame.draw.rect(screen, '#6b88fe', self.fl_ob_rect)  # закрашиваем предыдущий кадр летающего объекта
-            self.fl_ob_rect.x -= TILE_SIZE * 0.5  # изменяем положение летающего объекта
+            self.fl_ob_rect.x -= TILE_SIZE * 0.1  # изменяем положение летающего объекта
             screen.blit(self.flight_objects, self.fl_ob_rect.topleft)  # рисуем новый кадр летающего объекта
         else:
             pygame.draw.rect(screen, '#6b88fe', self.fl_ob_rect)
@@ -338,6 +337,14 @@ def end_screen():
         clock.tick(FPS)
 
 
+# def logo_screen():
+#     Попытка реализовать экран с логотипом перед запуском игры
+#     screen.fill(WHITE)
+#     logo = pygame.transform.scale(load_image('Logo1.png'), (100, 100))
+#     screen.blit(logo, (0, 0))
+#     time.sleep(2)
+
+
 def start_screen():
     intro_text = ["Mario 0.1", 'Играть', 'Настройки', 'Правила игры', 'Выход']
 
@@ -444,6 +451,7 @@ player = Player([320, 320], False)
 
 clock = pygame.time.Clock()
 
+# logo_screen()
 start_screen()
 game_world.draw_game_world()
 
