@@ -1,6 +1,5 @@
-import time
-
 import pygame
+import time
 import csv
 from os import path
 from random import choice
@@ -8,13 +7,18 @@ from data.board import Board
 
 SIZE = WIDTH, HEIGHT = 960, 540
 TILE_SIZE = 40
-FPS = 30
+FPS = 24
 BUTTON_COLOR = pygame.Color('gray')
 WHITE = pygame.Color('white')
 
 pygame.init()
 pygame.mixer.music.load('data/main_menu_theme.mp3')
 screen = pygame.display.set_mode(SIZE)
+
+
+def quit():
+    pygame.quit()
+    exit(0)
 
 
 def load_image(name, colorkey=None):
@@ -128,7 +132,7 @@ class GameWorld(pygame.sprite.Sprite):
     def update(self):
         if screenRect.contains(self.fl_ob_rect):  # проверка на нахождение летающего объекта в кадре
             pygame.draw.rect(screen, '#6b88fe', self.fl_ob_rect)  # закрашиваем предыдущий кадр летающего объекта
-            self.fl_ob_rect.x -= TILE_SIZE * 0.5  # изменяем положение летающего объекта
+            self.fl_ob_rect.x -= TILE_SIZE * 0.1  # изменяем положение летающего объекта
             screen.blit(self.flight_objects, self.fl_ob_rect.topleft)  # рисуем новый кадр летающего объекта
         else:
             pygame.draw.rect(screen, '#6b88fe', self.fl_ob_rect)
@@ -219,7 +223,7 @@ def settings_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     start_screen()
@@ -313,7 +317,7 @@ def end_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     touching_replay = replay_rect.collidepoint(event.pos)
@@ -336,6 +340,14 @@ def end_screen():
                     pygame.draw.rect(screen, anim_color, (exit_menu_rect.x - 6, exit_menu_rect.y - 6, exit_menu_rect.width + 12, exit_menu_rect.height + 12), 3)
                 pygame.display.flip()
         clock.tick(FPS)
+
+
+# def logo_screen():
+#     Попытка реализовать экран с логотипом перед запуском игры
+#     screen.fill(WHITE)
+#     logo = pygame.transform.scale(load_image('Logo1.png'), (100, 100))
+#     screen.blit(logo, (0, 0))
+#     time.sleep(2)
 
 
 def start_screen():
@@ -386,7 +398,7 @@ def start_screen():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                quit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     touching_settings = settings_rect.collidepoint(event.pos)
@@ -405,7 +417,7 @@ def start_screen():
                         print('Перешли в правила игры')
                         print('Я вас умоляю, какие правила? Это тирекс на минималках!')
                     elif touching_exit:
-                        pygame.quit()
+                        quit()
             elif event.type == pygame.MOUSEMOTION:
                 touching_settings = settings_rect.collidepoint(event.pos)
                 touching_play = play_rect.collidepoint(event.pos)
@@ -444,6 +456,7 @@ player = Player([320, 320], False)
 
 clock = pygame.time.Clock()
 
+# logo_screen()
 start_screen()
 game_world.draw_game_world()
 
@@ -476,6 +489,9 @@ while running:
     else:
         player.jump()
 
+    #  отрисовываем сетку для ориентации, если нужно
+    # board.set_view(0, 0, 40)
+    # board.render(screen)
     pygame.display.flip()
     clock.tick(FPS)
-pygame.quit()
+quit()
